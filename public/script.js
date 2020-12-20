@@ -1,5 +1,9 @@
 const socket = io('/')
 const videoGrid = document.getElementById('wrapper')
+onresize=_=>{
+  videoGrid.style.height = Math.ceil(.9*window.visualViewport.height) + 'px';
+}
+onresize();
 const myPeer = new Peer(undefined)
 const myVideo = document.createElement('video')
 myVideo.muted = true
@@ -10,6 +14,8 @@ navigator.mediaDevices.getUserMedia({
   audio: true
 }).then(stream => {
   addVideoStream(myVideo, stream)
+  muteButton.click();
+  hideCamButton.click();
 
   myPeer.on('call', call => {
     call.answer(stream)
@@ -75,3 +81,33 @@ function addVideoStream(video, stream) {
   })
   videoGrid.append(video)
 }
+
+
+let muteButton = document.getElementById('mute');
+let hideCamButton = document.getElementById('hideCam');
+
+muteButton.addEventListener('click', e=> {
+  myVideo.srcObject.getTracks().forEach((item, i) => {
+    if(item.kind == 'audio') {
+      item.enabled = !item.enabled;
+      if (item.enabled) {
+        muteButton.innerHTML = 'mute';
+      } else {
+        muteButton.innerHTML = 'unmute';
+      }
+    }
+  });
+});
+
+hideCamButton.addEventListener('click', e=> {
+  myVideo.srcObject.getTracks().forEach((item, i) => {
+    if(item.kind == 'video') {
+      item.enabled = !item.enabled;
+      if (item.enabled) {
+        hideCamButton.innerHTML = 'switch cam off';
+      } else {
+        hideCamButton.innerHTML = 'switch cam on';
+      }
+    }
+  });
+});
